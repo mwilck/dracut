@@ -223,13 +223,18 @@ get_devpath_block() {
 
 # get a persistent path from a device
 get_persistent_dev() {
-    local i j _tmp _dev _pol
+    local i j _dir _tmp _dev _pol
 
     _dev=$(get_maj_min "$1")
     [ -z "$_dev" ] && return
 
-    for j in ${persistent_policy[@]}; do
-	for i in /dev/disk/${i}/*; do
+    for j in $persistent_policy; do
+	case $j in
+	    mapper) _dir=/dev/mapper;;
+	    *) _dir=/dev/disk/${j};;
+	esac
+	[[ -d "$_dir" ]] || continue
+	for i in ${_dir}/*; do
             [[ -e "$i" ]] || continue
             [[ $i == /dev/mapper/control ]] && continue
             [[ $i == /dev/mapper/mpath* ]] && continue

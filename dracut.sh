@@ -157,6 +157,7 @@ Creates initial ramdisk images for preloading modules
   --persistent-policy [POLICY]
                         Use [POLICY] to address disks and partitions.
                         POLICY can be any directory name found in /dev/disk.
+                        As an exception, if POLICY is "mapper", it refers to /dev/mapper.
                         E.g. "by-uuid", "by-label"
   --fstab               Use /etc/fstab to determine the root device.
   --add-fstab [FILE]    Add file to the initramfs fstab
@@ -733,7 +734,7 @@ stdloglvl=$((stdloglvl + verbosity_mod_l))
 [[ $i18n_install_all_l ]] && i18n_install_all=$i18n_install_all_l
 [[ $persistent_policy_l ]] && persistent_policy=$persistent_policy_l
 # add the default fallback
-persistent_policy+=( mapper by-uuid by-label by-partuuid by-partlabel by-id by-path )
+persistent_policy+=" mapper by-uuid by-label by-partuuid by-partlabel by-id by-path "
 [[ $use_fstab_l ]] && use_fstab=$use_fstab_l
 [[ $mdadmconf_l ]] && mdadmconf=$mdadmconf_l
 [[ $lvmconf_l ]] && lvmconf=$lvmconf_l
