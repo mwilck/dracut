@@ -49,7 +49,7 @@ installkernel() {
         return 0
     }
 
-    if [[ "$(uname -p)" == arm* ]]; then
+    if [[ "$(uname -p)" == arm* || "$(uname -p)" == "aarch64" ]]; then
         # arm specific modules needed by drm
         instmods \
             "=drivers/gpu/drm/i2c" \

@@ -75,7 +75,7 @@ installkernel() {
         instmods yenta_socket scsi_dh_rdac scsi_dh_emc scsi_dh_alua \
                  atkbd i8042 usbhid firewire-ohci pcmcia hv-vmbus
 
-        if [[ "$(uname -p)" == arm* ]]; then
+        if [[ "$(uname -p)" == arm* || "$(uname -p)" == "aarch64" ]]; then
             # arm specific modules
             instmods \
                 "=drivers/i2c/busses" \
