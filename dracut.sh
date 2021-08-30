@@ -1205,13 +1205,44 @@ else
     exit 1
 fi
 
-if [[ $cpio_reflink == "yes" ]]; then
+is_reflink_supported() {
     dracut_cpio="$dracutbasedir/dracut-cpio"
-    if [[ -x $dracut_cpio ]]; then
+    [ -x $dracut_cpio ] || {
+        dinfo "cpio-reflink ignored due to lack of dracut-cpio"
+        return 1
+    }
+    local fstype=$(find_mp_fstype $dracutsysrootdir/boot)
+    case $fstype in
+        xfs|btrfs) ;;
+        *)
+            dinfo "cpio-reflink is unsupported on $fstype"
+            return 1;;
+    esac
+    # reflinking doesn't work across mount points
+    if mountpoint -q $dracutsysrootdir/boot; then
+        dinfo "cpio-reflink ignored because /boot is a separate mountpoint"
+        return 1;
+    elif [[ $(stat -f -c %i $dracutsysrootdir/) != $(stat -f -c %i "$TMPDIR") ]]; then
+        dinfo "cpio-reflink ignored because tmpdir=\"$TMPDIR\" is on a separate file system"
+        return 1
+    else
+        return 0
+    fi
+}
+
+if [[ $cpio_reflink == "yes" ]]; then
+    if [[ ! $compress_l && $do_strip_l != "yes" ]] && is_reflink_supported; then
+        if [[ $do_strip == "yes" ]]; then
+            dinfo "ignoring --strip because of cpio-reflink"
+            do_strip="no"
+        fi
+        if [[ $compress != "$DRACUT_COMPRESS_CAT" ]]; then
+            dinfo "setting compress=\"$DRACUT_COMPRESS_CAT\" because of cpio-reflink"
+            compress="$DRACUT_COMPRESS_CAT"
+        fi
         # align based on statfs optimal transfer size
         cpio_align=$(stat --file-system -c "%s" -- "$initdir")
     else
-        dinfo "cpio-reflink ignored due to lack of dracut-cpio"
         unset cpio_reflink
     fi
 fi
