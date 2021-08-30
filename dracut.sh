@@ -1168,17 +1168,6 @@ trap 'exit 1;' SIGINT
 readonly initdir="${DRACUT_TMPDIR}/initramfs"
 mkdir -p "$initdir"
 
-if [[ $cpio_reflink == "yes" ]]; then
-    dracut_cpio="$dracutbasedir/dracut-cpio"
-    if [[ -x $dracut_cpio ]]; then
-        # align based on statfs optimal transfer size
-        cpio_align=$(stat --file-system -c "%s" -- "$initdir")
-    else
-        dinfo "cpio-reflink ignored due to lack of dracut-cpio"
-        unset cpio_reflink
-    fi
-fi
-
 # shellcheck disable=SC2154
 if [[ $early_microcode == yes ]] || { [[ $acpi_override == yes ]] && [[ -d $acpi_table_dir ]]; }; then
     readonly early_cpio_dir="${DRACUT_TMPDIR}/earlycpio"
@@ -1214,6 +1203,17 @@ else
     printf "%s\n" "dracut: Are you running from a git checkout?" >&2
     printf "%s\n" "dracut: Try passing -l as an argument to $dracut_cmd" >&2
     exit 1
+fi
+
+if [[ $cpio_reflink == "yes" ]]; then
+    dracut_cpio="$dracutbasedir/dracut-cpio"
+    if [[ -x $dracut_cpio ]]; then
+        # align based on statfs optimal transfer size
+        cpio_align=$(stat --file-system -c "%s" -- "$initdir")
+    else
+        dinfo "cpio-reflink ignored due to lack of dracut-cpio"
+        unset cpio_reflink
+    fi
 fi
 
 # shellcheck disable=SC2154
