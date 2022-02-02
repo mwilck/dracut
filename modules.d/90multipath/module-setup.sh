@@ -40,15 +40,6 @@ depends() {
 }
 
 # called by dracut
-cmdline() {
-    for m in scsi_dh_alua scsi_dh_emc scsi_dh_rdac dm_multipath; do
-        if grep -m 1 -q "$m" /proc/modules; then
-            printf 'rd.driver.pre=%s ' "$m"
-        fi
-    done
-}
-
-# called by dracut
 installkernel() {
     local _arch=${DRACUT_ARCH:-$(uname -m)}
     local _funcs='scsi_register_device_handler|dm_dirty_log_type_register|dm_register_path_selector|dm_register_target'
