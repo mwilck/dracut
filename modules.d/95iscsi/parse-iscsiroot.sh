@@ -28,6 +28,7 @@ if [ -z "$netroot" ]; then
 fi
 [ -z "$iscsiroot" ] && iscsiroot=$(getarg iscsiroot=)
 [ -z "$iscsi_firmware" ] && getargbool 0 rd.iscsi.firmware -y iscsi_firmware && iscsi_firmware="1"
+[ -z "$iscsi_module" ] && iscsi_module=$(getarg rd.iscsi.module=)
 
 [ -n "$iscsiroot" ] && [ -n "$iscsi_firmware" ] && die "Mixing iscsiroot and iscsi_firmware is dangerous"
 
@@ -79,7 +80,7 @@ fi
 # iscsi_firmware does not need argument checking
 if [ -n "$iscsi_firmware" ]; then
     if [ "$root" != "dhcp" ] && [ "$netroot" != "dhcp" ]; then
-        [ -z "$netroot" ] && netroot=iscsi:
+        [ -z "$netroot" ] && [ "$iscsi_module" != bnx2i ] && netroot=iscsi:
     fi
     modprobe -b -q iscsi_boot_sysfs 2> /dev/null
     modprobe -b -q iscsi_ibft
